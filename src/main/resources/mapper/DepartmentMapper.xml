@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--    private Integer id;     //主键
+        private String sn;      //部门标号
+        private String name;    //部门名称
+        private Employee manager;  //部门经理
+        private Department parent;    //上级部门
+        private Integer state;  //部门状态：0 正常，-1 停用-->
+
+<mapper namespace="com.xiaojian.crm.mapper.DepartmentMapper">
+    <resultMap id="DepartmentResultMap" type="Department">
+        <id property="id" column="id"/>
+
+        <result property="sn" column="sn"/>
+        <result property="name" column="name"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+
+    <select id="findById" parameterType="Integer" resultMap="DepartmentResultMap">
+        select * from t_department where id = #{id}
+    </select>
+
+    <select id="queryForEmp" resultType="Department">
+        select id,`name` from t_department;
+    </select>
+</mapper>

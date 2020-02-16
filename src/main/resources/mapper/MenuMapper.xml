@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xiaojian.crm.mapper.IMenuMapper">
+    <resultMap id="MenuResultMap" type="Menu">
+        <id property="id" column="id"/>
+        <result property="text" column="text"/>
+        <result property="iconCls" column="iconCls"/>
+        <result property="checked" column="checked"/>
+        <result property="state" column="state"/>
+        <result property="attributes" column="attributes"/>
+
+        <collection property="children" ofType="Menu" column="id" select="com.xiaojian.crm.mapper.IMenuMapper.findById">
+        </collection>
+    </resultMap>
+
+    <select id="findParentNode" resultMap="MenuResultMap">
+        select * from t_menu where parent_id is null
+    </select>
+
+    <select id="findById" parameterType="Integer" resultMap="MenuResultMap">
+        select * from t_menu where parent_id = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!--        private Integer id;         // 主键-->
+<!--        private String username;    //用户名-->
+<!--        private String realName;    //真实姓名-->
+<!--        private String password;    //密码-->
+<!--        private String tel;         //电话号码-->
+<!--        private String email;       //邮箱-->
+<!--        private Department dept;    //部门对象-->
+<!--        private Date inputTime;     //录入时间-->
+<!--        private Integer state;      //状态：0 正常，-1 离职-->
+<!--        private Integer admin;      //身份：1 超级管理员，0 普通-->
+
+<mapper namespace="com.xiaojian.crm.mapper.EmployeeMapper">
+    <resultMap id="EmployeeResultMap" type="Employee">
+        <id property="id" column="id" />
+
+        <result property="username" column="username" />
+        <result property="realName" column="realName" />
+        <result property="password" column="password" />
+        <result property="tel" column="tel" />
+        <result property="email" column="email" />
+        <result property="inputTime" column="inputTime" />
+        <result property="state" column="state" />
+        <result property="admin" column="admin" />
+
+        <association property="dept" javaType="Department"
+                     select="com.xiaojian.crm.mapper.DepartmentMapper.findById"
+                     column="dept_id">
+        </association>
+    </resultMap>
+
+
+    <insert id="add" parameterType="Employee">
+        insert into
+            t_employee
+        values
+            (null,#{username},#{realName},#{password},#{tel},#{email},#{dept.id},#{inputTime},#{state},#{admin})
+        <selectKey keyProperty="id" order="AFTER" resultType="Integer">
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+
+    <insert id="addRelationRole">
+        insert into t_emp_role(empId,roleId) values(#{empId},#{roleId})
+    </insert>
+
+    <delete id="delRelationRole" parameterType="Integer">
+        delete from t_emp_role where empId = #{id}
+    </delete>
+
+    <delete id="deleteById" parameterType="Integer">
+       update t_employee set state = 0
+       where id = #{id}
+    </delete>
+
+    <select id="loadToLogin" resultMap="EmployeeResultMap">
+        select id,username,realName,tel,email,dept_id,`inputTime`,state,`admin`
+        from t_employee where username=#{username} and password=#{password};
+    </select>
+
+    <select id="findAll" parameterType="EmployeeQueryObject" resultMap="EmployeeResultMap">
+        select id,username,realName,tel,email,dept_id,`inputTime`,state,`admin`
+        from t_employee
+        order by state DESC
+    </select>
+
+    <select id="findById" parameterType="Integer" resultMap="EmployeeResultMap">
+        select id,username,realName,tel,email,dept_id,`inputTime`,state,`admin`
+        from t_employee where id = #{id}
+    </select>
+
+    <select id="findByName" parameterType="String" resultMap="EmployeeResultMap">
+        select * from t_employee where username = #{name}
+    </select>
+
+    <select id="queryRoleOfEmp" parameterType="Integer" resultType="Integer">
+        SELECT roleId FROM t_emp_role WHERE empId = #{id}
+    </select>
+
+    <update id="updateById" parameterType="Employee">
+        update t_employee
+        set username=#{username},realName=#{realName},tel=#{tel},email=#{email},dept_id=#{dept.id},inputTime=#{inputTime}
+        where id = #{id}
+    </update>
+
+
+    <sql id="where_sql">
+        <where>
+            <if test="keyword != null">
+                (
+                    username like concat('%',#{keyword},'%')
+                    OR realName like concat('%',#{keyword},'%')
+                    OR tel like concat('%',#{keyword},'%')
+                    OR email like concat('%',#{keyword},'%')
+                )
+            </if>
+        </where>
+    </sql>
+    <select id="queryCount" parameterType="EmployeeQueryObject" resultType="Long">
+        select count(*) from t_employee
+        <include refid="where_sql"/>
+    </select>
+
+    <select id="queryForPage" parameterType="EmployeeQueryObject" resultMap="EmployeeResultMap">
+        select id,username,realName,tel,email,dept_id,`inputTime`,state,`admin` from t_employee
+        order by state DESC
+        <include refid="where_sql"/>
+        <if test="page != null">
+            limit #{start},#{rows}
+        </if>
+    </select>
+
+</mapper>

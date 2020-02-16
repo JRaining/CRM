@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<!--        private Integer id; // 主键-->
+<!--        private String name; // 权限名-->
+<!--        private String resource;  // 资源路径-->
+
+<mapper namespace="com.xiaojian.crm.mapper.PermissionMapper">
+
+    <select id="findAll" resultType="Permission">
+        select * from t_permission
+    </select>
+
+    <select id="findById" parameterType="Integer" resultType="Permission">
+        select * from t_permission where id = #{id}
+    </select>
+
+    <sql id="where_sql">
+        <where>
+            <if test="rId != null">
+                id in
+                (select permissionId from t_role_permission where roleId = #{rId} )
+            </if>
+        </where>
+    </sql>
+    <select id="queryCount" parameterType="PermissionQueryObject"  resultType="Long">
+        select count(*) from t_permission
+        <include refid="where_sql"/>
+    </select>
+
+    <select id="queryForPage" parameterType="PermissionQueryObject" resultType="Permission">
+        select * from t_permission
+        <include refid="where_sql"/>
+        <if test="page != null">
+            limit #{start},#{rows}
+        </if>
+    </select>
+
+    <select id="queryByEid" parameterType="int" resultType="String">
+        SELECT per.resource FROM t_permission per
+        LEFT JOIN t_role_permission rp ON (per.id = rp.permissionId)
+        LEFT JOIN t_role role ON (rp.roleId = role.id)
+        WHERE role.id IN (SELECT roleId FROM t_emp_role WHERE empId = #{Eid})
+    </select>
+
+</mapper>
+

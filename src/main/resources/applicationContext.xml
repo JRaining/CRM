@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+			http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+<!-- 0.读取配置文件 -->
+    <context:property-placeholder location="classpath:db.properties"/>
+<!-- 1.配置数据源-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+<!-- 2. sqlSessionFactory -->
+    <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 2.1 数据源引用 -->
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 2.2 mybatis配置文件-->
+        <property name="configLocation" value="classpath:sqlMapConfig.xml"/>
+        <!-- 2.3 mapper映射文件 -->
+        <property name="mapperLocations" value="classpath:mapper/*Mapper.xml"/>
+    </bean>
+<!-- 3.mapper接口扫描器   -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--        <property name="sqlSessionFactoryBeanName" value="sessionFactory"/>-->
+        <property name="basePackage" value="com.xiaojian.crm.mapper"/>
+    </bean>
+
+<!-- 4.开启注解扫描
+    <context:component-scan base-package="com.xiaojian.crm" />-->
+
+
+<!-- 5. 事务管理-->
+    <!-- 3.1 事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 3.2 事务模板-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="insert*" propagation="SUPPORTS" />
+            <tx:method name="update*" propagation="SUPPORTS" />
+            <tx:method name="edit*" propagation="SUPPORTS" />
+            <tx:method name="save*" propagation="SUPPORTS" />
+            <tx:method name="add*" propagation="SUPPORTS" />
+            <tx:method name="new*" propagation="SUPPORTS" />
+            <tx:method name="set*" propagation="SUPPORTS" />
+            <tx:method name="remove*" propagation="SUPPORTS" />
+            <tx:method name="delete*" propagation="SUPPORTS" />
+            <tx:method name="change*" propagation="SUPPORTS" />
+            <tx:method name="check*" propagation="SUPPORTS" />
+            <tx:method name="get*" propagation="SUPPORTS" read-only="true" />
+            <tx:method name="find*" propagation="SUPPORTS" read-only="true" />
+            <tx:method name="load*" propagation="SUPPORTS" read-only="true" />
+            <tx:method name="*" />
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- 3.3 aop配置 -->
+    <!--  日志写出类  -->
+    <bean id="logAop" class="com.xiaojian.crm.util.LogAop"></bean>
+    <aop:config>
+        <aop:pointcut id="txPoint" expression="execution(* com.xiaojian.crm.web.controller.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txPoint"/>
+<!--        <aop:aspect ref="logAop">
+            <aop:after method="doAfter" pointcut-ref="txPoint"/>
+        </aop:aspect>-->
+    </aop:config>
+
+</beans>

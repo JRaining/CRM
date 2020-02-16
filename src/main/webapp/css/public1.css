@@ -1,0 +1,38 @@
+*{
+    margin:0px;
+    padding:0px;
+}
+
+#top{
+    position:absolute;
+    top:0px;
+    left:0px;
+    height:70px;
+    position:relative;
+}
+#top_links{
+    width: 800px;
+    height: 65px;
+    line-height: 65px;
+    position:absolute;
+    top:10px;
+    right:0px;
+}
+#top_links p{
+    color:white;
+    font-size:14px;
+    float:right;
+    margin-right:50px;
+}
+#top_links p a{
+    padding:7px;
+    background:red;
+    text-decoration:none;
+    border-radius:6px;
+    font-size:12px;
+    color:white;
+}
+#top_links p a:hover{
+    text-decoration: underline;
+    background:rgb(8,183,42);
+}
