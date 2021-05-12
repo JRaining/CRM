@@ -17,7 +17,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <org.springframework.version>4.2.3.RELEASE</org.springframework.version>
     <org.mybatis.version>3.2.3</org.mybatis.version>
-    <spring.security.version>5.0.1.RELEASE</spring.security.version>
+    <spring.security.version>5.2.10.RELEASE</spring.security.version>
   </properties>
 
   <dependencies>
